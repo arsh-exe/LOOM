@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard — LOOM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/main.css" />
+  <link rel="stylesheet" href="../css/navbar.css" />
+  <link rel="stylesheet" href="../css/product.css" />
+  <link rel="stylesheet" href="../css/responsive.css" />
+</head>
+<body>
+  <div id="navbar-mount"></div>
+
+  <section class="section">
+    <div class="container admin-layout">
+      <aside class="admin-sidebar">
+        <a href="#" data-section="dashboard">Dashboard</a>
+        <a href="#" data-section="products">Products</a>
+        <a href="#" data-section="orders">Orders</a>
+        <a href="#" data-section="users">Users</a>
+      </aside>
+      <div>
+        <div class="admin-panel" data-panel="dashboard" id="dashboard-mount"><div class="spinner"></div></div>
+        <div class="admin-panel" data-panel="products" id="products-mount" style="display:none;"></div>
+        <div class="admin-panel" data-panel="orders" id="orders-admin-mount" style="display:none;"></div>
+        <div class="admin-panel" data-panel="users" id="users-mount" style="display:none;"></div>
+      </div>
+    </div>
+  </section>
+
+  <div id="footer-mount"></div>
+  <div id="toast-container"></div>
+
+  <script src="../js/utils.js"></script>
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/layout.js"></script>
+  <script src="../js/admin.js"></script>
+</body>
+</html>

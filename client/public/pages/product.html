@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Product — LOOM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/main.css" />
+  <link rel="stylesheet" href="../css/navbar.css" />
+  <link rel="stylesheet" href="../css/home.css" />
+  <link rel="stylesheet" href="../css/product.css" />
+  <link rel="stylesheet" href="../css/responsive.css" />
+</head>
+<body>
+  <div id="navbar-mount"></div>
+
+  <section class="section">
+    <div class="container">
+      <div class="breadcrumb"><a href="../index.html">Home</a> / <a href="shop.html">Shop</a> / <span id="breadcrumb-name">Product</span></div>
+
+      <div class="product-detail" id="product-detail-mount"></div>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="reviews">Reviews</button>
+      </div>
+
+      <div id="sentiment-summary-mount"></div>
+      <div id="review-form-mount"></div>
+      <div id="reviews-mount"></div>
+
+      <div class="section" id="recommendations-section">
+        <div class="ai-recommend-head">
+          <span class="badge badge-ai"><span class="dot"></span>AI Recommended</span>
+        </div>
+        <h2 style="margin-bottom:var(--space-5);">You might also like</h2>
+        <div class="product-grid" id="recommendations-grid"></div>
+      </div>
+    </div>
+  </section>
+
+  <div id="footer-mount"></div>
+  <div id="ai-chat-mount"></div>
+  <div id="toast-container"></div>
+
+  <script src="../js/utils.js"></script>
+  <script src="../js/api.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/layout.js"></script>
+  <script src="../js/products.js"></script>
+  <script src="../js/chatbot.js"></script>
+  <script src="../js/product-detail.js"></script>
+</body>
+</html>

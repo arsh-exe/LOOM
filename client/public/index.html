@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LOOM — AI-Curated Everyday Essentials</title>
+  <meta name="description" content="Shop electronics, footwear, bags, watches and home goods with AI-powered recommendations." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/navbar.css" />
+  <link rel="stylesheet" href="css/home.css" />
+  <link rel="stylesheet" href="css/product.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+</head>
+<body>
+  <div id="navbar-mount"></div>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="container hero-inner">
+      <span class="eyebrow"><span class="dot"></span>AI-Powered Shopping</span>
+      <h1>Curated goods, matched to what you actually need.</h1>
+      <p class="lead">LOOM pairs a clean everyday catalog with real AI: content-based product recommendations, review sentiment analysis, and a shopping assistant grounded in our live inventory.</p>
+      <div class="hero-actions">
+        <a href="pages/shop.html" class="btn btn-primary">Shop All Products</a>
+        <a href="#why-us" class="btn btn-outline" style="color:#fff; border-color:rgba(255,255,255,0.3);">How it works</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Categories -->
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <div><span class="eyebrow">Browse</span><h2>Shop by category</h2></div>
+      </div>
+      <div class="categories-grid" id="category-grid">
+        <div class="skeleton" style="height:120px;"></div>
+        <div class="skeleton" style="height:120px;"></div>
+        <div class="skeleton" style="height:120px;"></div>
+        <div class="skeleton" style="height:120px;"></div>
+        <div class="skeleton" style="height:120px;"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured products -->
+  <section class="section" style="padding-top:0;">
+    <div class="container">
+      <div class="section-head">
+        <div><span class="eyebrow">New in</span><h2>Featured products</h2></div>
+        <a href="pages/shop.html" class="text-link">View all →</a>
+      </div>
+      <div class="product-grid" id="featured-grid">
+        <div class="skeleton" style="aspect-ratio:3/4;"></div>
+        <div class="skeleton" style="aspect-ratio:3/4;"></div>
+        <div class="skeleton" style="aspect-ratio:3/4;"></div>
+        <div class="skeleton" style="aspect-ratio:3/4;"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Why choose us -->
+  <section class="section section-tinted" id="why-us">
+    <div class="container">
+      <div class="section-head"><div><span class="eyebrow">Why LOOM</span><h2>Built on real AI, not gimmicks</h2></div></div>
+      <div class="features-grid">
+        <div class="feature-item">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M13 2 3 14h9l-1 8 10-12h-9z"/></svg>
+          <h3>Smart Recommendations</h3>
+          <p>Every product page suggests related items using a content-based similarity algorithm — real logic, explainable end to end.</p>
+        </div>
+        <div class="feature-item">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <h3>AI Shopping Assistant</h3>
+          <p>Chat with an assistant that only recommends real products from our catalog — grounded, not hallucinated.</p>
+        </div>
+        <div class="feature-item">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20 6 9 17l-5-5"/></svg>
+          <h3>Sentiment-Analyzed Reviews</h3>
+          <p>Reviews are automatically tagged positive, neutral, or negative using lexicon-based NLP, so you get the signal at a glance.</p>
+        </div>
+        <div class="feature-item">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <h3>Secure by Design</h3>
+          <p>Passwords hashed with bcrypt, sessions handled with JWTs, and role-based access control on every admin route.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Best sellers -->
+  <section class="section">
+    <div class="container">
+      <div class="section-head"><div><span class="eyebrow">Top rated</span><h2>Best sellers</h2></div></div>
+      <div class="product-grid" id="bestseller-grid">
+        <div class="skeleton" style="aspect-ratio:3/4;"></div>
+        <div class="skeleton" style="aspect-ratio:3/4;"></div>
+        <div class="skeleton" style="aspect-ratio:3/4;"></div>
+        <div class="skeleton" style="aspect-ratio:3/4;"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section class="section section-tinted">
+    <div class="container">
+      <div class="section-head"><div><span class="eyebrow">Reviews</span><h2>What customers say</h2></div></div>
+      <div class="testimonial-grid">
+        <div class="testimonial-card">
+          <div class="stars">★★★★★</div>
+          <p>"The AI recommendations actually make sense — it suggested a case right after I bought a watch, not just random stuff."</p>
+          <div class="author">— Verified Buyer</div>
+        </div>
+        <div class="testimonial-card">
+          <div class="stars">★★★★☆</div>
+          <p>"Clean checkout, order arrived on time. Wishlist-to-cart feature saved me a step."</p>
+          <div class="author">— Verified Buyer</div>
+        </div>
+        <div class="testimonial-card">
+          <div class="stars">★★★★★</div>
+          <p>"Asked the chat assistant for a gift under $50 and it nailed it first try."</p>
+          <div class="author">— Verified Buyer</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Newsletter -->
+  <section class="section">
+    <div class="container">
+      <div class="newsletter">
+        <div>
+          <h2>Get early access to new drops</h2>
+          <p>One email a week, no spam. Unsubscribe anytime.</p>
+        </div>
+        <form class="newsletter-form" onsubmit="event.preventDefault(); Utils.showToast('Thanks for subscribing!', 'success'); this.reset();">
+          <input type="email" placeholder="you@example.com" required />
+          <button type="submit" class="btn btn-primary">Subscribe</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <div id="footer-mount"></div>
+  <div id="ai-chat-mount"></div>
+  <div id="toast-container"></div>
+
+  <script src="js/utils.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/products.js"></script>
+  <script src="js/chatbot.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
