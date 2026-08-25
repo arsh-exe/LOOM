@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderFooter();
   initAiChatWidget();
 
-  if (!Auth.requireLogin('login.html')) return;
+  if (!Auth.requireLogin('pages/login.html')) return;
 
   try {
     const me = await Api.get('/auth/me', true);

@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderFooter();
   initAiChatWidget();
 
-  if (!Auth.requireLogin('login.html')) return;
+  if (!Auth.requireLogin('pages/login.html')) return;
 
   const mount = document.getElementById('orders-mount');
   mount.innerHTML = `<div class="spinner"></div>`;

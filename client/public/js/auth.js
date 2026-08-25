@@ -31,7 +31,7 @@ const Auth = {
   logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    window.location.href = '/index.html';
+    window.location.href = `${pagePrefix()}index.html`;
   },
 
   async login(email, password) {
@@ -48,10 +48,13 @@ const Auth = {
 
   // Call this at the top of any page that REQUIRES login (profile, orders,
   // checkout, admin). Redirects to login and remembers where to return to.
-  requireLogin(redirectTo = 'login.html') {
+  requireLogin(redirectTo = `${pagePrefix()}pages/login.html`) {
     if (!this.isLoggedIn()) {
       const returnUrl = encodeURIComponent(window.location.pathname + window.location.search);
-      window.location.href = `${redirectTo}?redirect=${returnUrl}`;
+      const loginPath = redirectTo.startsWith('http') || redirectTo.startsWith('/')
+        ? redirectTo
+        : `${pagePrefix()}${redirectTo.startsWith('pages/') ? redirectTo : `pages/${redirectTo}`}`;
+      window.location.href = `${loginPath}?redirect=${returnUrl}`;
       return false;
     }
     return true;
@@ -77,7 +80,7 @@ function renderNavAccount() {
   const user = Auth.getUser();
 
   if (!user) {
-    wrap.innerHTML = `<a href="${pagePrefix()}login.html" class="navbar-icon-btn" title="Login">
+    wrap.innerHTML = `<a href="${pagePrefix()}pages/login.html" class="navbar-icon-btn" title="Login">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
     </a>`;
     return;

@@ -5,9 +5,14 @@
    ========================================================================== */
 
 const Utils = {
-  // Format a number as currency, e.g. 49.9 -> "$49.90"
+  // Format a number as INR, e.g. 12999 -> "₹12,999.00"
   formatPrice(value) {
-    return `$${Number(value).toFixed(2)}`;
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(Number(value || 0));
   },
 
   // Turn "2024-06-01T10:00:00Z" into "Jun 1, 2024"
@@ -76,6 +81,41 @@ const Utils = {
     };
   },
 
+  // Convert raw asset paths into browser-safe URLs, especially for names
+  // containing spaces, accents, or special characters like '#'.
+  normalizeImageUrl(url, fallbackImage = '/assets/products-images/p_img1.png') {
+    if (!url) return fallbackImage;
+
+    try {
+      const encodeAssetSegment = (segment) => {
+        const converted = Array.from(segment)
+          .map((character) => {
+            const code = character.codePointAt(0);
+            return code > 0x7f ? `#U${code.toString(16).padStart(4, '0')}` : character;
+          })
+          .join('');
+
+        return encodeURIComponent(converted);
+      };
+
+      if (/^https?:\/\//i.test(url)) {
+        const parsed = new URL(url);
+        parsed.pathname = parsed.pathname
+          .split('/')
+          .map((segment) => encodeAssetSegment(decodeURIComponent(segment)))
+          .join('/');
+        return parsed.toString();
+      }
+
+      return url
+        .split('/')
+        .map((segment) => encodeAssetSegment(decodeURIComponent(segment)))
+        .join('/');
+    } catch {
+      return url || fallbackImage;
+    }
+  },
+
   // Placeholder image if a product somehow has no images array
-  fallbackImage: 'https://loremflickr.com/600/600/product?lock=99',
+  fallbackImage: '/assets/products-images/p_img1.png',
 };

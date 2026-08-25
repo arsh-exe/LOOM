@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderFooter();
   initAiChatWidget();
 
-  if (!Auth.requireLogin('login.html')) return;
+  if (!Auth.requireLogin('pages/login.html')) return;
 
   await loadCart();
 });
@@ -32,7 +32,7 @@ async function loadCart() {
       .map(
         (item) => `
       <div class="cart-item" data-product-id="${item.product._id}">
-        <img src="${item.product.images?.[0] || Utils.fallbackImage}" alt="${Utils.escapeHtml(item.product.name)}" />
+        <img src="${Utils.normalizeImageUrl(item.product.images?.[0])}" alt="${Utils.escapeHtml(item.product.name)}" onerror="this.onerror=null; this.src='${Utils.fallbackImage}';" />
         <div>
           <div class="name">${Utils.escapeHtml(item.product.name)}</div>
           <div class="text-muted" style="font-size:0.82rem;">${Utils.escapeHtml(item.product.brand)}</div>

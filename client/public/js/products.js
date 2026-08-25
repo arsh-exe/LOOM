@@ -8,7 +8,7 @@
 // (homepage featured section, shop grid, related products).
 function productCardHtml(product, { showMatch = false } = {}) {
   const prefix = pagePrefix();
-  const image = product.images?.[0] || Utils.fallbackImage;
+  const image = Utils.normalizeImageUrl(product.images?.[0]);
   const hasDiscount = product.discount > 0;
   const outOfStock = product.stock <= 0;
 
@@ -16,7 +16,7 @@ function productCardHtml(product, { showMatch = false } = {}) {
     <div class="product-card" data-id="${product._id}">
       <a href="${prefix}pages/product.html?id=${product._id}">
         <div class="thumb-wrap">
-          <img src="${image}" alt="${Utils.escapeHtml(product.name)}" loading="lazy" />
+          <img src="${image}" alt="${Utils.escapeHtml(product.name)}" loading="lazy" onerror="this.onerror=null; this.src='${Utils.fallbackImage}';" />
           <div class="badges">
             ${hasDiscount ? `<span class="badge badge-sale">-${product.discount}%</span>` : ''}
             ${outOfStock ? `<span class="badge badge-out">Out of stock</span>` : ''}

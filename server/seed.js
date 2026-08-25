@@ -1,12 +1,11 @@
 // One-time script to populate the database with realistic demo data:
-// categories, products (with real internet-sourced images), an admin
-// user, and a regular test user. Run with: npm run seed
+// categories, products, an admin user, and a regular test user.
+// Run with: npm run seed
 //
-// Product photos come from LoremFlickr (loremflickr.com), which serves
-// real, keyword-matched, Creative-Commons-licensed photos sourced from
-// Flickr — no API key required. The `?lock=N` parameter pins a specific
-// photo per product so images stay consistent between runs (otherwise
-// each request would return a different random photo for that keyword).
+// Product photos are served straight from the client's static assets
+// folder (client/public/assets/products-images/p_img1.png ... p_img52.png),
+// so every seeded product simply points at one of those pre-bundled
+// images by number — no external image host or upload step required.
 require('dotenv').config();
 const mongoose = require('mongoose');
 const connectDB = require('./config/db');
@@ -18,16 +17,19 @@ const Cart = require('./models/Cart');
 const Order = require('./models/Order');
 const Review = require('./models/Review');
 
-function img(keyword, lock, w = 600, h = 600) {
-  return `https://loremflickr.com/${w}/${h}/${keyword}?lock=${lock}`;
+function assetImage(imageNumberOrName) {
+  const fileName = typeof imageNumberOrName === 'number' ? `p_img${imageNumberOrName}` : imageNumberOrName;
+  return `/assets/products-images/${fileName}.png`;
+}
+
+function inrPrice(amount) {
+  return Number((Number(amount) * 83).toFixed(2));
 }
 
 const categoriesData = [
-  { name: 'Electronics', slug: 'electronics' },
-  { name: 'Footwear', slug: 'footwear' },
-  { name: 'Bags & Backpacks', slug: 'bags-backpacks' },
-  { name: 'Watches', slug: 'watches' },
-  { name: 'Home & Living', slug: 'home-living' },
+  { name: 'Women', slug: 'women' },
+  { name: 'Men', slug: 'men' },
+  { name: 'Kids', slug: 'kids' },
 ];
 
 async function seed() {
@@ -50,180 +52,169 @@ async function seed() {
   console.log('Creating products...');
   const productsData = [
     {
-      name: 'AeroSound Wireless Headphones',
-      description:
-        'Over-ear wireless headphones with active noise cancellation, 30-hour battery life, and plush memory-foam ear cushions for all-day comfort.',
-      price: 129.99,
-      discount: 15,
-      category: catId('electronics'),
-      brand: 'AeroSound',
-      images: [img('headphones', 1), img('headphones', 2)],
+      name: 'Women Round Neck Cotton Top',
+      description: 'A lightweight cotton top with a classic round neckline, soft feel, and easy everyday fit.',
+      price: 100,
+      discount: 5,
+      category: catId('women'),
+      brand: 'Forever',
+      images: [assetImage('p_img1')],
       stock: 40,
     },
     {
-      name: 'PulseFit Wireless Earbuds',
-      description:
-        'Compact true-wireless earbuds with sweat resistance, touch controls, and a compact charging case good for 5 extra charges.',
-      price: 59.99,
+      name: 'Men Round Neck Pure Cotton T-shirt',
+      description: 'Premium cotton tee with a relaxed fit, soft texture, and everyday comfort for casual wear.',
+      price: 200,
       discount: 10,
-      category: catId('electronics'),
-      brand: 'PulseFit',
-      images: [img('earbuds', 3)],
-      stock: 65,
-    },
-    {
-      name: 'ClearView 4K Action Camera',
-      description:
-        'Waterproof 4K action camera with image stabilization, wide-angle lens, and Wi-Fi transfer to your phone.',
-      price: 189.99,
-      discount: 0,
-      category: catId('electronics'),
-      brand: 'ClearView',
-      images: [img('camera', 4)],
-      stock: 20,
-    },
-    {
-      name: 'BoomBox Portable Bluetooth Speaker',
-      description:
-        'Rugged, IPX7 waterproof Bluetooth speaker with 20 hours of playtime and deep bass output.',
-      price: 74.99,
-      discount: 20,
-      category: catId('electronics'),
-      brand: 'BoomBox',
-      images: [img('speaker', 5)],
-      stock: 50,
-    },
-    {
-      name: 'StrideMax Running Shoes',
-      description:
-        'Lightweight running shoes with breathable mesh upper and responsive cushioned sole for daily training.',
-      price: 89.99,
-      discount: 10,
-      category: catId('footwear'),
-      brand: 'StrideMax',
-      images: [img('running-shoes', 6), img('sneakers', 7)],
-      stock: 55,
-    },
-    {
-      name: 'UrbanStep Casual Sneakers',
-      description:
-        'Everyday minimalist sneakers with a clean silhouette, memory-foam insole, and durable rubber outsole.',
-      price: 64.99,
-      discount: 0,
-      category: catId('footwear'),
-      brand: 'UrbanStep',
-      images: [img('sneakers', 8)],
-      stock: 70,
-    },
-    {
-      name: 'TrailBlaze Hiking Boots',
-      description:
-        'Waterproof hiking boots with reinforced ankle support and an aggressive grip sole for rough terrain.',
-      price: 109.99,
-      discount: 5,
-      category: catId('footwear'),
-      brand: 'TrailBlaze',
-      images: [img('hiking-boots', 9)],
-      stock: 30,
-    },
-    {
-      name: 'CityPack 25L Backpack',
-      description:
-        'Water-resistant everyday backpack with a padded 15" laptop sleeve, USB charging port, and anti-theft zippers.',
-      price: 54.99,
-      discount: 15,
-      category: catId('bags-backpacks'),
-      brand: 'CityPack',
-      images: [img('backpack', 10), img('backpack', 11)],
+      category: catId('men'),
+      brand: 'Forever',
+      images: [
+        assetImage('p_img2_1'),
+        assetImage('p_img2_2'),
+        assetImage('p_img2_3'),
+        assetImage('p_img2_4'),
+      ],
       stock: 60,
     },
     {
-      name: 'VoyagerPro Travel Duffel',
-      description:
-        'Spacious 45L duffel bag with a separate shoe compartment, built from tear-resistant water-repellent fabric.',
-      price: 69.99,
-      discount: 0,
-      category: catId('bags-backpacks'),
-      brand: 'VoyagerPro',
-      images: [img('duffel-bag', 12)],
-      stock: 25,
-    },
-    {
-      name: 'MetroSling Crossbody Bag',
-      description:
-        'Compact crossbody sling bag with quick-access front pocket, ideal for commuting or light travel.',
-      price: 34.99,
-      discount: 10,
-      category: catId('bags-backpacks'),
-      brand: 'MetroSling',
-      images: [img('sling-bag', 13)],
-      stock: 45,
-    },
-    {
-      name: 'ChronoFit Smartwatch',
-      description:
-        'Fitness smartwatch with heart-rate monitoring, sleep tracking, GPS, and a 7-day battery life.',
-      price: 149.99,
-      discount: 20,
-      category: catId('watches'),
-      brand: 'ChronoFit',
-      images: [img('smartwatch', 14), img('smartwatch', 15)],
+      name: 'Girls Round Neck Cotton Top',
+      description: 'Soft and breathable cotton top designed for all-day comfort and easy movement.',
+      price: 220,
+      discount: 8,
+      category: catId('kids'),
+      brand: 'Forever',
+      images: [assetImage('p_img3')],
       stock: 35,
     },
     {
-      name: 'Heritage Classic Leather Watch',
-      description:
-        'Minimalist analog watch with genuine leather strap, stainless steel case, and scratch-resistant glass.',
-      price: 99.99,
-      discount: 0,
-      category: catId('watches'),
-      brand: 'Heritage',
-      images: [img('leather-watch', 16)],
-      stock: 28,
+      name: 'Men Tapered Fit Flat-Front Trousers',
+      description: 'Tailored trousers with a tapered fit, soft touch, and refined look for smart casual wear.',
+      price: 190,
+      discount: 12,
+      category: catId('men'),
+      brand: 'Forever',
+      images: [assetImage('p_img7')],
+      stock: 30,
     },
     {
-      name: 'PulseGuard Sport Watch',
-      description:
-        'Rugged sport watch with stopwatch, water resistance to 50m, and a bright backlit display.',
-      price: 44.99,
-      discount: 10,
-      category: catId('watches'),
-      brand: 'PulseGuard',
-      images: [img('sport-watch', 17)],
+      name: 'Boy Round Neck Pure Cotton T-shirt',
+      description: 'A soft and comfortable boy’s tee with a classic casual fit and easy wear.',
+      price: 160,
+      discount: 6,
+      category: catId('kids'),
+      brand: 'Forever',
+      images: [assetImage('p_img14')],
+      stock: 39,
+    },
+    {
+      name: 'Women Palazzo Pants with Waist Belt',
+      description: 'Relaxed fit palazzo pants with a waist belt and an easy-flowing silhouette for comfort.',
+      price: 190,
+      discount: 12,
+      category: catId('women'),
+      brand: 'Forever',
+      images: [assetImage('p_img20')],
+      stock: 27,
+    },
+    {
+      name: 'Women Zip-Front Relaxed Fit Jacket',
+      description: 'A relaxed zip-front jacket designed for layering with a polished casual finish.',
+      price: 170,
+      discount: 15,
+      category: catId('women'),
+      brand: 'Forever',
+      images: [assetImage('p_img21')],
+      stock: 24,
+    },
+    {
+      name: 'Men Round Neck Pure Cotton T-shirt',
+      description: 'Everyday cotton t-shirt with a clean finish, breathable fabric, and a polished casual feel.',
+      price: 140,
+      discount: 5,
+      category: catId('men'),
+      brand: 'Forever',
+      images: [assetImage('p_img8')],
       stock: 50,
     },
     {
-      name: 'LumaGlow LED Desk Lamp',
-      description:
-        'Adjustable LED desk lamp with 5 brightness levels, touch controls, and a built-in USB charging port.',
-      price: 29.99,
-      discount: 5,
-      category: catId('home-living'),
-      brand: 'LumaGlow',
-      images: [img('desk-lamp', 18)],
-      stock: 80,
-    },
-    {
-      name: 'HydraFlask Insulated Bottle',
-      description:
-        'Double-wall vacuum insulated stainless steel bottle, keeps drinks cold for 24 hours or hot for 12.',
-      price: 24.99,
+      name: 'Girls Round Neck Cotton Top',
+      description: 'Lightweight girls top with a comfortable cotton feel and a flattering everyday fit.',
+      price: 140,
       discount: 0,
-      category: catId('home-living'),
-      brand: 'HydraFlask',
-      images: [img('water-bottle', 19)],
-      stock: 100,
+      category: catId('kids'),
+      brand: 'Forever',
+      images: [assetImage('p_img6')],
+      stock: 42,
     },
     {
-      name: 'CozyNest Throw Blanket',
-      description:
-        'Ultra-soft microfiber throw blanket, machine washable, perfect for the couch or bedroom.',
-      price: 32.99,
+      name: 'Men Round Neck Pure Cotton T-shirt',
+      description: 'Classic tee in pure cotton for a clean silhouette and a comfortable casual everyday look.',
+      price: 110,
+      discount: 5,
+      category: catId('men'),
+      brand: 'Forever',
+      images: [assetImage('p_img4')],
+      stock: 55,
+    },
+    {
+      name: 'Women Round Neck Cotton Top',
+      description: 'A soft, breathable cotton top made for daily wear with a modern, easy fit.',
+      price: 130,
       discount: 10,
-      category: catId('home-living'),
-      brand: 'CozyNest',
-      images: [img('blanket', 20)],
-      stock: 40,
+      category: catId('women'),
+      brand: 'Forever',
+      images: [assetImage('p_img5')],
+      stock: 48,
+    },
+    {
+      name: 'Boy Round Neck Pure Cotton T-shirt',
+      description: 'Simple cotton essentials with breathable comfort and a neat, everyday silhouette.',
+      price: 120,
+      discount: 0,
+      category: catId('kids'),
+      brand: 'Forever',
+      images: [assetImage('p_img11')],
+      stock: 62,
+    },
+    {
+      name: 'Girls Round Neck Cotton Top',
+      description: 'Cute and lightweight cotton top built for comfort, movement, and easy styling.',
+      price: 100,
+      discount: 0,
+      category: catId('kids'),
+      brand: 'Forever',
+      images: [assetImage('p_img9')],
+      stock: 58,
+    },
+    {
+      name: 'Men Tapered Fit Flat-Front Trousers',
+      description: 'Minimal, versatile trousers that pair effortlessly with basic tees and shirts.',
+      price: 110,
+      discount: 10,
+      category: catId('men'),
+      brand: 'Forever',
+      images: [assetImage('p_img10')],
+      stock: 44,
+    },
+    {
+      name: 'Women Round Neck Cotton Top',
+      description: 'Comfortable everyday top with a flattering fit and a breathable cotton feel.',
+      price: 130,
+      discount: 10,
+      category: catId('women'),
+      brand: 'Forever',
+      images: [assetImage('p_img13')],
+      stock: 46,
+    },
+    {
+      name: 'Men Round Neck Pure Cotton T-shirt',
+      description: 'A staple casual tee made from breathable cotton for all-day comfort and simplicity.',
+      price: 150,
+      discount: 8,
+      category: catId('men'),
+      brand: 'Forever',
+      images: [assetImage('p_img12')],
+      stock: 51,
     },
   ];
 

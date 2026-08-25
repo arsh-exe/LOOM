@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderFooter();
   initAiChatWidget();
 
-  if (!Auth.requireLogin('login.html')) return;
+  if (!Auth.requireLogin('pages/login.html')) return;
 
   await loadWishlist();
 });
@@ -30,7 +30,7 @@ async function loadWishlist() {
         (product) => `
       <div class="product-card" data-id="${product._id}">
         <a href="product.html?id=${product._id}">
-          <div class="thumb-wrap"><img src="${product.images?.[0] || Utils.fallbackImage}" alt="${Utils.escapeHtml(product.name)}" /></div>
+          <div class="thumb-wrap"><img src="${Utils.normalizeImageUrl(product.images?.[0])}" alt="${Utils.escapeHtml(product.name)}" onerror="this.onerror=null; this.src='${Utils.fallbackImage}';" /></div>
         </a>
         <div class="body">
           <span class="brand">${Utils.escapeHtml(product.brand)}</span>

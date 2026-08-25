@@ -44,10 +44,12 @@ function renderProductDetail(p) {
   const outOfStock = p.stock <= 0;
   const lowStock = p.stock > 0 && p.stock <= 5;
 
+  const normalizedImages = images.map((img) => Utils.normalizeImageUrl(img));
+
   document.getElementById('product-detail-mount').innerHTML = `
     <div class="product-gallery">
-      <div class="main-image"><img id="main-product-image" src="${images[0]}" alt="${Utils.escapeHtml(p.name)}" /></div>
-      ${images.length > 1 ? `<div class="thumb-strip">${images.map((img, i) => `<img src="${img}" class="${i === 0 ? 'active' : ''}" data-thumb="${img}" />`).join('')}</div>` : ''}
+      <div class="main-image"><img id="main-product-image" src="${normalizedImages[0]}" alt="${Utils.escapeHtml(p.name)}" onerror="this.onerror=null; this.src='${Utils.fallbackImage}';" /></div>
+      ${normalizedImages.length > 1 ? `<div class="thumb-strip">${normalizedImages.map((img, i) => `<img src="${img}" class="${i === 0 ? 'active' : ''}" data-thumb="${img}" onerror="this.onerror=null; this.src='${Utils.fallbackImage}';" />`).join('')}</div>` : ''}
     </div>
     <div class="product-info">
       <span class="brand">${Utils.escapeHtml(p.brand)}</span>
@@ -98,7 +100,7 @@ function renderProductDetail(p) {
   });
 
   document.getElementById('add-to-cart-btn').addEventListener('click', async () => {
-    if (!Auth.isLoggedIn()) { window.location.href = 'login.html'; return; }
+    if (!Auth.isLoggedIn()) { window.location.href = `${pagePrefix()}pages/login.html`; return; }
     try {
       await Api.post('/cart', { productId: p._id, quantity: selectedQty }, true);
       Utils.showToast('Added to cart', 'success');
@@ -109,7 +111,7 @@ function renderProductDetail(p) {
   });
 
   document.getElementById('wishlist-btn-detail').addEventListener('click', async () => {
-    if (!Auth.isLoggedIn()) { window.location.href = 'login.html'; return; }
+    if (!Auth.isLoggedIn()) { window.location.href = `${pagePrefix()}pages/login.html`; return; }
     try {
       await Api.post(`/wishlist/${p._id}`, {}, true);
       Utils.showToast('Added to wishlist', 'success');
@@ -172,7 +174,7 @@ function renderReviewForm(productId) {
   const mount = document.getElementById('review-form-mount');
 
   if (!Auth.isLoggedIn()) {
-    mount.innerHTML = `<p class="text-muted"><a href="login.html" class="text-link">Log in</a> to leave a review (verified purchase required).</p>`;
+    mount.innerHTML = `<p class="text-muted"><a href="${pagePrefix()}pages/login.html" class="text-link">Log in</a> to leave a review (verified purchase required).</p>`;
     return;
   }
 

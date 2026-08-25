@@ -21,10 +21,13 @@ const aiRoutes = require('./routes/aiRoutes');
 const app = express();
 
 // ---- Global middleware ----
-app.use(cors());                 // allow the frontend (different port) to call this API
-app.use(express.json());         // parse incoming JSON request bodies into req.body
+app.use(cors({
+  origin: true,
+  credentials: true,
+}));
+app.use(express.json());
 if (process.env.NODE_ENV !== 'production') {
-  app.use(morgan('dev'));        // log each request to the console while developing
+  app.use(morgan('dev'));
 }
 
 // ---- Health check ----
@@ -49,12 +52,31 @@ app.use('/api/ai', aiRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 5000;
+const DEFAULT_PORT = Number(process.env.PORT || 5000);
+
+function startServer(port, previousPort = null) {
+  const server = app.listen(port, () => {
+    console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${port}`);
+    if (previousPort) {
+      console.warn(`Port ${previousPort} was busy, so the app started on port ${port} instead.`);
+    }
+  });
+
+  server.on('error', (error) => {
+    if (error.code === 'EADDRINUSE') {
+      const fallbackPort = port + 1;
+      console.warn(`Port ${port} is already in use. Retrying on port ${fallbackPort}...`);
+      startServer(fallbackPort, port);
+      return;
+    }
+
+    console.error('Server failed to start:', error);
+    process.exit(1);
+  });
+}
 
 // Connect to MongoDB first, then start listening for requests.
 // This avoids accepting requests before the DB connection is ready.
 connectDB().then(() => {
-  app.listen(PORT, () => {
-    console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
-  });
+  startServer(DEFAULT_PORT);
 });

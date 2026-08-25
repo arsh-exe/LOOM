@@ -33,8 +33,21 @@ exports.getProducts = async (req, res, next) => {
     const filter = {};
 
     if (keyword) {
-      // Uses the text index we defined on the Product schema (name + brand)
-      filter.$text = { $search: keyword };
+      const searchText = keyword.trim();
+      if (searchText.length >= 2) {
+        const safeKeyword = searchText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const keywordRegex = new RegExp(`(?:^|\\s)${safeKeyword}(?:\\s|$)`, 'i');
+
+        // Match full words/phrases instead of broad partial matches, so a random
+        // query doesn't return unrelated products from common letters or words.
+        filter.$or = [
+          { name: keywordRegex },
+          { brand: keywordRegex },
+          { description: keywordRegex },
+        ];
+      } else {
+        filter._id = { $exists: false };
+      }
     }
 
     if (category) filter.category = category;

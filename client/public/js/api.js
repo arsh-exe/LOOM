@@ -7,7 +7,23 @@
        consistent everywhere instead of repeated in every page's JS
    ========================================================================== */
 
-const API_BASE_URL = 'http://localhost:5000/api';
+function getApiBaseUrls() {
+  const hostCandidates = [];
+  const currentHost = window.location.hostname;
+
+  if (currentHost && currentHost !== 'localhost' && currentHost !== '127.0.0.1') {
+    hostCandidates.push(`http://${currentHost}:5000/api`);
+  }
+
+  hostCandidates.push(
+    'http://localhost:5000/api',
+    'http://127.0.0.1:5000/api',
+    'http://localhost:5001/api',
+    'http://127.0.0.1:5001/api'
+  );
+
+  return [...new Set(hostCandidates)];
+}
 
 const Api = {
   // Reads the JWT saved at login time (see auth.js)
@@ -24,27 +40,35 @@ const Api = {
       if (token) headers.Authorization = `Bearer ${token}`;
     }
 
-    const response = await fetch(`${API_BASE_URL}${path}`, {
-      method,
-      headers,
-      body: body ? JSON.stringify(body) : undefined,
-    });
+    let lastError = null;
 
-    // The backend's errorHandler middleware always returns { message: '...' }
-    // on failure, so we can extract a readable error message consistently.
-    let data;
-    try {
-      data = await response.json();
-    } catch {
-      data = null;
+    for (const baseUrl of getApiBaseUrls()) {
+      try {
+        const response = await fetch(`${baseUrl}${path}`, {
+          method,
+          headers,
+          body: body ? JSON.stringify(body) : undefined,
+        });
+
+        let data;
+        try {
+          data = await response.json();
+        } catch {
+          data = null;
+        }
+
+        if (!response.ok) {
+          const message = data?.message || `Request failed (${response.status})`;
+          throw new Error(message);
+        }
+
+        return data;
+      } catch (error) {
+        lastError = error;
+      }
     }
 
-    if (!response.ok) {
-      const message = data?.message || `Request failed (${response.status})`;
-      throw new Error(message);
-    }
-
-    return data;
+    throw lastError || new Error('Unable to reach the LOOM API. Make sure the backend is running on port 5000.');
   },
 
   get(path, auth = false) {

@@ -25,7 +25,7 @@ function initAiChatWidget() {
         <div class="ai-msg assistant">Hi! Tell me what you're looking for — a budget, a category, a use case — and I'll point you to real products from our catalog.</div>
       </div>
       <div class="ai-chat-input-row">
-        <input type="text" id="ai-chat-input" placeholder="e.g. running shoes under $100" />
+        <input type="text" id="ai-chat-input" placeholder="e.g. running shoes under ₹4000" />
         <button id="ai-chat-send" aria-label="Send">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 2-7 20-4-9-9-4Z"/></svg>
         </button>

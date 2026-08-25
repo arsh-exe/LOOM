@@ -1,20 +1,57 @@
 const Product = require('../models/Product');
 
+function parseBudget(message) {
+  const match = message.match(/(?:under|below|upto|up to|less than|max|maximum)\s*₹?\s*(\d+(?:,\d{3})*(?:\.\d+)?)/i)
+    || message.match(/₹\s*(\d+(?:,\d{3})*(?:\.\d+)?)/i)
+    || message.match(/(\d+(?:,\d{3})*(?:\.\d+)?)\s*(?:rupees|inr)/i);
+
+  if (!match) return null;
+  return Number(match[1].replace(/,/g, ''));
+}
+
+function formatInr(value) {
+  return `₹${Number(value).toFixed(2)}`;
+}
+
+function getCatalogFallbackReply(message, products) {
+  const lower = message.toLowerCase();
+  const budget = parseBudget(message);
+
+  let filtered = [...products];
+
+  if (lower.includes('women') || lower.includes('woman')) {
+    filtered = filtered.filter((p) => /women|woman|girl|girls/i.test(p.name) || /women|woman|girl|girls/i.test(p.category?.name || ''));
+  } else if (lower.includes('men') || lower.includes('man')) {
+    filtered = filtered.filter((p) => /men|man|boy|boys/i.test(p.name) || /men|man|boy|boys/i.test(p.category?.name || ''));
+  } else if (lower.includes('kids') || lower.includes('kid') || lower.includes('girls') || lower.includes('boys')) {
+    filtered = filtered.filter((p) => /girl|girls|boy|boys|kid|kids/i.test(p.name) || /girl|girls|boy|boys|kid|kids/i.test(p.category?.name || ''));
+  }
+
+  if (budget !== null) {
+    filtered = filtered.filter((p) => Number(p.price) <= budget || Number(p.finalPrice ?? p.price) <= budget);
+  }
+
+  if (!filtered.length) {
+    const closest = products.slice(0, 3).map((p) => `${p.name} (${formatInr(p.finalPrice ?? p.price)})`).join(', ');
+    return `I don’t see a direct match for “${message}” in the live catalog right now. Closest options are ${closest}.`;
+  }
+
+  const picks = filtered.slice(0, 3).map((p) => `${p.name} (${formatInr(p.finalPrice ?? p.price)})`);
+
+  if (budget !== null) {
+    return `I found a few options under ${formatInr(budget)}: ${picks.join('; ')}.`;
+  }
+
+  return `I found a few options for “${message}”: ${picks.join('; ')}.`;
+}
+
 // ---- AI Feature: Shopping Assistant Chatbot ----
 //
-// This calls the real Anthropic Claude API (api.anthropic.com), using
-// YOUR OWN API key stored in server/.env as ANTHROPIC_API_KEY.
-// Get a free key at https://console.anthropic.com
+// The app supports Groq by default (keys begin with gsk_), while also
+// keeping Anthropic as a fallback for compatibility.
 //
-// How it works (function-calling / RAG-lite pattern):
-//   1. User sends a message, e.g. "I need running shoes under $100"
-//   2. We fetch a relevant slice of our OWN product catalog from MongoDB
-//   3. We inject that catalog data into Claude's system prompt as context
-//   4. Claude answers using ONLY that real data — not making products up
-//
-// This is a simplified version of "Retrieval-Augmented Generation" (RAG):
-// grounding an LLM's answer in your own real data instead of letting it
-// rely purely on what it was trained on.
+// The request is grounded in the real catalog, and if the external LLM
+// provider is unavailable, we fall back to a local catalog-based response.
 exports.chatWithAssistant = async (req, res, next) => {
   try {
     const { message, history = [] } = req.body;
@@ -24,16 +61,9 @@ exports.chatWithAssistant = async (req, res, next) => {
       throw new Error('Message is required');
     }
 
-    if (!process.env.ANTHROPIC_API_KEY) {
-      res.status(503);
-      throw new Error(
-        'AI assistant is not configured. Add ANTHROPIC_API_KEY to server/.env to enable it.'
-      );
-    }
+    const groqKey = process.env.GROQ_API_KEY;
+    const anthropicKey = process.env.ANTHROPIC_API_KEY;
 
-    // Pull a snapshot of the catalog to ground the assistant's answers.
-    // Keeping this small (name, price, brand, category, stock) keeps the
-    // request cheap and fast instead of sending full product documents.
     const products = await Product.find()
       .populate('category', 'name')
       .select('name price discount brand stock rating category')
@@ -42,7 +72,7 @@ exports.chatWithAssistant = async (req, res, next) => {
     const catalogSummary = products
       .map(
         (p) =>
-          `- ${p.name} | brand: ${p.brand} | category: ${p.category?.name || 'N/A'} | price: $${p.price} (${p.discount}% off) | stock: ${p.stock} | rating: ${p.rating}`
+          `- ${p.name} | brand: ${p.brand} | category: ${p.category?.name || 'N/A'} | price: ₹${Number(p.price).toFixed(2)} (${p.discount}% off) | stock: ${p.stock} | rating: ${p.rating}`
       )
       .join('\n');
 
@@ -54,30 +84,79 @@ If nothing in the catalog fits the request, say so honestly and suggest the clos
 CATALOG:
 ${catalogSummary}`;
 
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': process.env.ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 300,
-        system: systemPrompt,
-        messages: [...history, { role: 'user', content: message }],
-      }),
-    });
+    let reply = '';
 
-    if (!response.ok) {
-      const errText = await response.text();
-      console.error('Anthropic API error:', errText);
-      res.status(502);
-      throw new Error('AI assistant is temporarily unavailable');
+    const tryProvider = async () => {
+      if (groqKey) {
+        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${groqKey}`,
+          },
+          body: JSON.stringify({
+            model: 'llama-3.3-70b-versatile',
+            temperature: 0.7,
+            max_tokens: 300,
+            messages: [
+              { role: 'system', content: systemPrompt },
+              ...history,
+              { role: 'user', content: message },
+            ],
+          }),
+        });
+
+        if (!response.ok) {
+          const errText = await response.text();
+          console.error('Groq API error:', errText);
+          throw new Error('AI provider unavailable');
+        }
+
+        const data = await response.json();
+        return data.choices?.[0]?.message?.content || '';
+      }
+
+      if (anthropicKey) {
+        const response = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': anthropicKey,
+            'anthropic-version': '2023-06-01',
+          },
+          body: JSON.stringify({
+            model: 'claude-sonnet-4-6',
+            max_tokens: 300,
+            system: systemPrompt,
+            messages: [...history, { role: 'user', content: message }],
+          }),
+        });
+
+        if (!response.ok) {
+          const errText = await response.text();
+          console.error('Anthropic API error:', errText);
+          throw new Error('AI provider unavailable');
+        }
+
+        const data = await response.json();
+        return data.content?.find((block) => block.type === 'text')?.text || '';
+      }
+
+      return '';
+    };
+
+    try {
+      if (groqKey || anthropicKey) {
+        reply = await tryProvider();
+      }
+    } catch (error) {
+      console.warn('AI provider failed, using catalog fallback:', error.message);
+      reply = getCatalogFallbackReply(message, products);
     }
 
-    const data = await response.json();
-    const reply = data.content?.find((block) => block.type === 'text')?.text || '';
+    if (!reply) {
+      reply = getCatalogFallbackReply(message, products);
+    }
 
     res.json({ reply });
   } catch (error) {

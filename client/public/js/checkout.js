@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderFooter();
   initAiChatWidget();
 
-  if (!Auth.requireLogin('login.html')) return;
+  if (!Auth.requireLogin('pages/login.html')) return;
 
   await loadCheckoutSummary();
   prefillAddress();
