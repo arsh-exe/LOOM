@@ -53,7 +53,7 @@ export default function CartPage() {
                   </div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <strong>${(Number(item.finalPrice ?? item.price) * Number(item.quantity || 1)).toFixed(2)}</strong>
+                  <strong>{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(item.finalPrice ?? item.price) * Number(item.quantity || 1))}</strong>
                   <div style={{ marginTop: 10 }}>
                     <button type="button" className="link-btn" onClick={() => handleRemove(item._id)}>Remove</button>
                   </div>
@@ -64,9 +64,9 @@ export default function CartPage() {
 
           <aside className="cart-summary">
             <h3 style={{ marginTop: 0 }}>Order summary</h3>
-            <div className="cart-row"><span>Subtotal</span><strong>${subtotal.toFixed(2)}</strong></div>
+            <div className="cart-row"><span>Subtotal</span><strong>{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(subtotal)}</strong></div>
             <div className="cart-row"><span>Shipping</span><strong>Free</strong></div>
-            <div className="cart-row"><span>Total</span><strong>${subtotal.toFixed(2)}</strong></div>
+            <div className="cart-row"><span>Total</span><strong>{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(subtotal)}</strong></div>
             <Link href="/shop" className="primary-btn" style={{ width: '100%', marginTop: 20 }}>Checkout</Link>
           </aside>
         </div>

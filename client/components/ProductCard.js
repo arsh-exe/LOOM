@@ -10,6 +10,14 @@ export default function ProductCard({ product }) {
   const price = Number(product.finalPrice ?? product.price ?? 0);
   const originalPrice = Number(product.price ?? 0);
 
+  const formatINR = (value) =>
+    new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(Number(value || 0));
+
   const handleAddToCart = () => {
     addToCart(product, 1);
     if (typeof window !== 'undefined') {
@@ -45,8 +53,8 @@ export default function ProductCard({ product }) {
 
         <div className="product-meta">
           <div className="price-wrap">
-            <span className="price">${price.toFixed(2)}</span>
-            {hasDiscount && <span className="old-price">${originalPrice.toFixed(2)}</span>}
+            <span className="price">{formatINR(price)}</span>
+            {hasDiscount && <span className="old-price">{formatINR(originalPrice)}</span>}
           </div>
           <span className="product-brand">{product.stock > 0 ? 'In stock' : 'Sold out'}</span>
         </div>

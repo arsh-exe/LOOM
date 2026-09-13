@@ -94,7 +94,7 @@ export default function HomePage() {
                 <img src="/assets/products-images/p_img2_1.png" alt="Featured product" />
                 <div>
                   <strong>Urban Classic Tee</strong>
-                  <small>From $89</small>
+                  <small>From ₹8,900</small>
                 </div>
               </div>
             </div>

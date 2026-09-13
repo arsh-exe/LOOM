@@ -13,6 +13,14 @@ export default function AiChatWidget() {
   const [loading, setLoading] = useState(false);
   const [matches, setMatches] = useState([]);
 
+  const formatINR = (value) =>
+    new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(Number(value || 0));
+
   async function handleSend() {
     const trimmed = input.trim();
     if (!trimmed || loading) return;
@@ -66,7 +74,7 @@ export default function AiChatWidget() {
                     <img src={product.images?.[0] || '/assets/products-images/p_img1.png'} alt={product.name} style={{ width: 52, height: 52, objectFit: 'cover', borderRadius: 8 }} />
                     <span style={{ flex: 1, fontSize: 12 }}>
                       <strong style={{ display: 'block', marginBottom: 2 }}>{product.name}</strong>
-                      <span style={{ color: '#5b5b5b' }}>${Number(product.price).toFixed(2)}</span>
+                      <span style={{ color: '#5b5b5b' }}>{formatINR(Number(product.price))}</span>
                     </span>
                   </a>
                 ))}

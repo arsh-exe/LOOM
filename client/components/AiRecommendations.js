@@ -24,6 +24,14 @@ export default function AiRecommendations({ productId }) {
 
   if (!items.length) return null;
 
+  const formatINR = (value) =>
+    new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(Number(value || 0));
+
   return (
     <section className="container section-block" style={{ paddingTop: 20 }}>
       <div className="section-heading">
@@ -46,7 +54,7 @@ export default function AiRecommendations({ productId }) {
               </div>
               <Link href={`/product/${product._id}`} className="product-title">{product.name}</Link>
               <div className="product-meta">
-                <span className="price">${Number(product.finalPrice ?? product.price).toFixed(2)}</span>
+                <span className="price">{formatINR(Number(product.finalPrice ?? product.price))}</span>
               </div>
             </div>
           </article>

@@ -37,6 +37,14 @@ export default function ProductDetailPage({ params }) {
     router.push('/cart');
   };
 
+  const formatINR = (value) =>
+    new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(Number(value || 0));
+
   if (!product) return <div className="container detail-page">Loading product...</div>;
 
   return (
@@ -70,9 +78,9 @@ export default function ProductDetailPage({ params }) {
           </div>
 
           <div className="detail-price">
-            <span className="price">${Number(product.finalPrice ?? product.price).toFixed(2)}</span>
+            <span className="price">{formatINR(Number(product.finalPrice ?? product.price))}</span>
             {Number(product.discount || 0) > 0 && (
-              <span className="old-price">${Number(product.price).toFixed(2)}</span>
+              <span className="old-price">{formatINR(Number(product.price))}</span>
             )}
           </div>
 

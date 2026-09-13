@@ -121,7 +121,14 @@ export default function Navbar() {
                     <img src={product.images?.[0] || '/assets/products-images/p_img1.png'} alt={product.name} />
                     <div>
                       <strong>{product.name}</strong>
-                      <span>${Number(product.price).toFixed(2)}</span>
+                      <span>
+                        {new Intl.NumberFormat('en-IN', {
+                          style: 'currency',
+                          currency: 'INR',
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        }).format(Number(product.price || 0))}
+                      </span>
                     </div>
                   </Link>
                 ))}
