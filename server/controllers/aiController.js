@@ -13,36 +13,75 @@ function formatInr(value) {
   return `₹${Number(value).toFixed(2)}`;
 }
 
-function getCatalogFallbackReply(message, products) {
+function pickMatchingProducts(message, products) {
   const lower = message.toLowerCase();
   const budget = parseBudget(message);
 
   let filtered = [...products];
 
-  if (lower.includes('women') || lower.includes('woman')) {
+  if (/(women|woman|female)/i.test(message)) {
     filtered = filtered.filter((p) => /women|woman|girl|girls/i.test(p.name) || /women|woman|girl|girls/i.test(p.category?.name || ''));
-  } else if (lower.includes('men') || lower.includes('man')) {
+  } else if (/(men|man|male)/i.test(message)) {
     filtered = filtered.filter((p) => /men|man|boy|boys/i.test(p.name) || /men|man|boy|boys/i.test(p.category?.name || ''));
-  } else if (lower.includes('kids') || lower.includes('kid') || lower.includes('girls') || lower.includes('boys')) {
+  } else if (/(kids|kid|girls|boys)/i.test(message)) {
     filtered = filtered.filter((p) => /girl|girls|boy|boys|kid|kids/i.test(p.name) || /girl|girls|boy|boys|kid|kids/i.test(p.category?.name || ''));
   }
 
+  if (/(top|shirt|tee|t-shirt|blouse|crop)/i.test(message)) {
+    filtered = filtered.filter((p) => /(top|shirt|tee|t-shirt|blouse|crop)/i.test(p.name));
+  }
+
+  if (/(pants|trouser|jeans|jacket|kurta|dress)/i.test(message)) {
+    filtered = filtered.filter((p) => /(pants|trouser|jeans|jacket|kurta|dress)/i.test(p.name));
+  }
+
   if (budget !== null) {
-    filtered = filtered.filter((p) => Number(p.price) <= budget || Number(p.finalPrice ?? p.price) <= budget);
+    filtered = filtered.filter((p) => Number(p.finalPrice ?? p.price) <= budget);
   }
 
   if (!filtered.length) {
-    const closest = products.slice(0, 3).map((p) => `${p.name} (${formatInr(p.finalPrice ?? p.price)})`).join(', ');
-    return `I don’t see a direct match for “${message}” in the live catalog right now. Closest options are ${closest}.`;
+    filtered = [...products];
   }
 
-  const picks = filtered.slice(0, 3).map((p) => `${p.name} (${formatInr(p.finalPrice ?? p.price)})`);
+  return filtered
+    .slice(0, 4)
+    .map((p) => ({
+      _id: String(p._id),
+      name: p.name,
+      brand: p.brand,
+      price: Number(p.finalPrice ?? p.price),
+      originalPrice: Number(p.price),
+      discount: Number(p.discount || 0),
+      images: p.images || [],
+      category: p.category?.name || '',
+      stock: p.stock,
+    }));
+}
+
+function getCatalogFallbackReply(message, products) {
+  const lower = message.toLowerCase();
+  const budget = parseBudget(message);
+  const picks = pickMatchingProducts(message, products);
+
+  if (!picks.length) {
+    return `I don’t see a direct match for “${message}” in the live catalog right now.`;
+  }
+
+  const names = picks.map((p) => `${p.name} (${formatInr(p.price)})`).join('; ');
 
   if (budget !== null) {
-    return `I found a few options under ${formatInr(budget)}: ${picks.join('; ')}.`;
+    return `I found a few options under ${formatInr(budget)}: ${names}.`;
   }
 
-  return `I found a few options for “${message}”: ${picks.join('; ')}.`;
+  if (lower.includes('women')) {
+    return `I found these women’s picks for you: ${names}.`;
+  }
+
+  if (lower.includes('men')) {
+    return `I found these men’s picks for you: ${names}.`;
+  }
+
+  return `I found a few options for “${message}”: ${names}.`;
 }
 
 // ---- AI Feature: Shopping Assistant Chatbot ----
@@ -66,7 +105,7 @@ exports.chatWithAssistant = async (req, res, next) => {
 
     const products = await Product.find()
       .populate('category', 'name')
-      .select('name price discount brand stock rating category')
+      .select('name price discount brand stock rating category images')
       .limit(60);
 
     const catalogSummary = products
@@ -158,7 +197,12 @@ ${catalogSummary}`;
       reply = getCatalogFallbackReply(message, products);
     }
 
-    res.json({ reply });
+    const matchedProducts = pickMatchingProducts(message, products);
+
+    res.json({
+      reply,
+      products: matchedProducts,
+    });
   } catch (error) {
     next(error);
   }

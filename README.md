@@ -1,84 +1,152 @@
 # LOOM — AI-Powered E-Commerce Platform
 
-A full-stack e-commerce site built as a learning / CV project, combining a
-vanilla JS frontend with a Node/Express/MongoDB backend, plus three real AI
-features: content-based product recommendations, review sentiment analysis,
-and a catalog-grounded shopping assistant chatbot.
+LOOM is a full-stack e-commerce app with a modern Next.js storefront and a Node/Express + MongoDB API. It includes product browsing, cart and orders, authentication, admin features, and AI-assisted shopping experiences.
 
-📄 **Read `docs/NOTES.md` before an interview** — it's a full write-up of every
-architectural decision, how each feature works, and likely questions with answers.
+## Overview
+
+- Frontend: Next.js 14 + React 18 + Framer Motion
+- Backend: Node.js + Express
+- Database: MongoDB + Mongoose
+- Authentication: JWT + bcrypt
+- AI features:
+  - Content-based product recommendations
+  - Review sentiment analysis
+  - Catalog-grounded shopping assistant
+
+## Current Project Structure
+
+```text
+.
+├── client/                 # Next.js storefront UI
+│   ├── app/                # App Router pages
+│   ├── components/         # Reusable UI components
+│   ├── public/            # Static assets and legacy storefront files
+│   └── package.json
+├── server/                 # Express API and data layer
+│   ├── config/            # DB config
+│   ├── controllers/       # Route handlers and business logic
+│   ├── middleware/        # Auth + admin + error middleware
+│   ├── models/            # Mongoose schemas
+│   ├── routes/            # API route definitions
+│   ├── utils/             # Recommendation + sentiment helpers
+│   ├── seed.js            # Seed demo data
+│   ├── server.js          # API entry point
+│   └── package.json
+├── docs/
+│   └── NOTES.md           # Interview and architecture notes
+├── package.json            # Root scripts to run both apps
+├── README.md
+├── .gitignore
+└── .env.example           # Optional environment example if present in a local setup
+```
 
 ## Tech Stack
 
-- **Frontend:** HTML5, CSS3, Vanilla JavaScript (ES6+) — no framework
-- **Backend:** Node.js, Express.js
-- **Database:** MongoDB + Mongoose
-- **Auth:** JWT + bcrypt
-- **AI:** Custom recommendation engine, `sentiment` NLP library, Anthropic Claude API
+- Next.js 14 for the storefront experience
+- React 18 for UI rendering
+- Framer Motion for motion and polish
+- Express.js for REST APIs
+- MongoDB + Mongoose for data persistence
+- JWT for authentication
+- bcryptjs for password hashing
+- Sentiment analysis for review classification
+- AI catalog matching and external LLM integration via Groq or Anthropic fallback
 
 ## Features
 
-- Product catalog with search, filtering (price/category/brand/rating/stock), and sorting
-- Full authentication (register/login, JWT, role-based access control)
-- Cart, wishlist, and a full checkout → order flow with stock validation
-- Verified-purchase product reviews, auto-tagged positive/neutral/negative by AI
-- AI-powered "related products" on every product page
-- AI shopping assistant chat widget, grounded in the real product catalog
-- Admin dashboard: revenue/order/user stats, product CRUD, order status management
+- Product listing, category browsing, and product detail pages
+- Search, filtering, sorting, and featured product sections
+- Wishlist, cart, and checkout flow integration
+- JWT-based customer and admin authentication
+- Admin dashboard and protected admin routes
+- AI product recommendations based on catalog similarity
+- Review sentiment scoring and labeling
+- Shopping assistant that responds using the live catalog
+
+## Required Environment Variables
+
+Create a `.env` file inside `server/` with the variables your app expects:
+
+```env
+MONGO_URI=mongodb://localhost:27017/loom
+JWT_SECRET=your_jwt_secret
+PORT=5001
+
+# optional but recommended for AI shopping assistant
+GROQ_API_KEY=your_groq_key
+# or
+ANTHROPIC_API_KEY=your_anthropic_key
+```
+
+> The frontend reads `NEXT_PUBLIC_API_URL` from the root dev script. The default API target is `http://localhost:5001/api`.
 
 ## Getting Started
 
-### 1. Backend
+### 1. Install dependencies
 
-\`\`\`bash
-cd server
+```bash
 npm install
-cp .env.example .env    # then fill in your own values
-npm run seed             # populates MongoDB with demo categories/products/users
-npm run dev               # runs on http://localhost:5000
-\`\`\`
+npm --prefix server install
+npm --prefix client install
+```
 
-Requires a local MongoDB instance running (\`mongod\`).
+### 2. Seed demo data
 
-### 2. Frontend
+```bash
+npm --prefix server run seed
+```
 
-\`\`\`bash
-cd client/public
-npx serve .
-\`\`\`
+This creates default admin and customer accounts for local testing.
 
-Or simply open \`client/public/index.html\` directly in a browser.
+### 3. Run the app
 
-### Demo accounts (created by \`npm run seed\`)
+Run both backend and frontend together from the root:
+
+```bash
+npm run dev
+```
+
+This starts:
+
+- Backend: `http://localhost:5001`
+- Frontend: `http://localhost:3001`
+
+If you want to start them separately:
+
+```bash
+npm run dev:server
+npm run dev:client
+```
+
+### 4. Production build
+
+```bash
+npm run build
+```
+
+## Demo Accounts
+
+The seeded accounts are:
 
 | Role | Email | Password |
 |---|---|---|
 | Admin | admin@example.com | admin123 |
 | Customer | user@example.com | user1234 |
 
-### Enabling the AI chatbot (optional)
+## API Notes
 
-Add your own free API key from https://console.anthropic.com to \`server/.env\`:
+The backend exposes REST endpoints under `/api`, including:
 
-\`\`\`
-ANTHROPIC_API_KEY=your_key_here
-\`\`\`
-
-The rest of the site works normally without it.
-
-## Project Structure
-
-\`\`\`
-ecommerce/
-├── client/public/       # Vanilla JS frontend (pages/, css/, js/)
-├── server/               # Express backend (routes → controllers → models)
-├── docs/NOTES.md          # Interview prep notes — read this!
-└── README.md
-\`\`\`
+- `/api/auth`
+- `/api/products`
+- `/api/categories`
+- `/api/cart`
+- `/api/orders`
+- `/api/reviews`
+- `/api/wishlist`
+- `/api/admin`
+- `/api/ai`
 
 ## Notes
 
-This is a learning project — no real payment processing is integrated, and
-product images are set via URL rather than a file-upload pipeline. See
-\`docs/NOTES.md\` §11 for the full list of known limitations and what a
-production version would add.
+This project has evolved from a simpler vanilla JS storefront into a more polished full-stack application with a modern Next.js frontend while preserving the backend architecture and data model. For interview or architecture context, see [docs/NOTES.md](docs/NOTES.md).

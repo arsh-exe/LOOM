@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     categoryGrid.innerHTML = categories
       .map(
         (c) => `
-        <a href="pages/shop.html?category=${c._id}" class="category-card">
+        <a href="pages/shop.html?category=${encodeURIComponent(c.slug || c._id)}" class="category-card">
           <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M9 21V9"/></svg>
           <span>${Utils.escapeHtml(c.name)}</span>
         </a>`

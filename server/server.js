@@ -52,7 +52,7 @@ app.use('/api/ai', aiRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
-const DEFAULT_PORT = Number(process.env.PORT || 5000);
+const DEFAULT_PORT = Number(process.env.PORT || 5001);
 
 function startServer(port, previousPort = null) {
   const server = app.listen(port, () => {

@@ -40,8 +40,13 @@ async function loadCategories() {
     const select = document.getElementById('filter-category');
     select.innerHTML =
       `<option value="">All categories</option>` +
-      categories.map((c) => `<option value="${c._id}">${Utils.escapeHtml(c.name)}</option>`).join('');
-    if (currentFilters.category) select.value = currentFilters.category;
+      categories.map((c) => `<option value="${c.slug || c._id}">${Utils.escapeHtml(c.name)}</option>`).join('');
+    if (currentFilters.category) {
+      const selectedValue = categories.some((c) => c.slug === currentFilters.category || c._id === currentFilters.category)
+        ? currentFilters.category
+        : '';
+      select.value = selectedValue;
+    }
   } catch (err) {
     /* non-critical */
   }

@@ -1,5 +1,11 @@
 const Product = require('../models/Product');
+const Category = require('../models/Category');
+const mongoose = require('mongoose');
 const getRecommendations = require('../utils/recommendations');
+
+function escapeForRegex(value = '') {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
 
 // @desc    Get all products, with search / filter / sort / pagination
 // @route   GET /api/products
@@ -50,7 +56,24 @@ exports.getProducts = async (req, res, next) => {
       }
     }
 
-    if (category) filter.category = category;
+    if (category) {
+      const normalizedCategory = String(category).trim();
+
+      if (normalizedCategory) {
+        if (mongoose.isValidObjectId(normalizedCategory)) {
+          filter.category = normalizedCategory;
+        } else {
+          const categoryDoc = await Category.findOne({
+            $or: [
+              { slug: new RegExp(`^${escapeForRegex(normalizedCategory.toLowerCase())}$`, 'i') },
+              { name: new RegExp(`^${escapeForRegex(normalizedCategory)}$`, 'i') },
+            ],
+          }).select('_id');
+
+          filter.category = categoryDoc ? categoryDoc._id : { $in: [] };
+        }
+      }
+    }
     if (brand) filter.brand = brand;
 
     if (minPrice || maxPrice) {
